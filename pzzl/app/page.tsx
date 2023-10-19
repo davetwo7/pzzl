@@ -1,9 +1,10 @@
-import Image from "next/image";
+import Board from "./components/Board";
 
 export default function Home() {
   return (
-    <main>
-      <h1 className="text-black">Hello World</h1>
+    <main className="flex items-center flex-col">
+      <h1 className="p-8 text-2xl font-ranade-medium">pzzl.</h1>
+      <Board />
     </main>
   );
 }
