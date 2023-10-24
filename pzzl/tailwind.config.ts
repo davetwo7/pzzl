@@ -28,6 +28,16 @@ const config: Config = {
         'ranade-bold-italic': ['Ranade-BoldItalic', 'sans'],
       }
     },
+    backgroundColor: {
+      'dark-brown': '#D18B47',
+      'light-peach': '#FFCE9E',
+      'dark-gray': '#4E4E4E',
+      'light-gray': '#B9B9B9',
+      'dark-green': '#769656',
+      'light-green': '#EEEED2',
+      'dark-blue': '#51748D',
+      'light-blue': '#A8D5E2',
+    }
   },
   plugins: [],
 }

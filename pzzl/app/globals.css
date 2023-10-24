@@ -21,6 +21,10 @@ body {
   background-color: black;
 }
 
+.dragging {
+  opacity: 0.1;
+}
+
 /**
  * @license
  *
