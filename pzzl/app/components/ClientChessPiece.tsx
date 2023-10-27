@@ -1,88 +1,69 @@
 "use client";
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState } from "react";
 import Image from "next/image";
+import { ClientChessPieceProps } from "../types/types";
 
-interface ClientChessPieceProps {
-  src: string;
-  alt: string;
-}
-
-const ClientChessPiece = ({ src, alt }: ClientChessPieceProps) => {
+const ClientChessPiece = ({
+  src,
+  alt,
+  onDrop,
+  piecePosition,
+  updatePiecePosition,
+}: ClientChessPieceProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const pieceRef = useRef<HTMLImageElement>(null);
-  const clonedPieceRef = useRef<HTMLImageElement | null>(null);
 
   const handleMouseDown = (
     e: React.MouseEvent<HTMLImageElement, MouseEvent>
   ) => {
-    const targetImage = e.target as HTMLElement;
-    console.log("Mouse down triggered");
+    e.preventDefault(); // Prevent default to handle drag properly
     setIsDragging(true);
-    targetImage.style.opacity = "0";
-
-    // Clone the original image and append to body
     if (pieceRef.current) {
-      clonedPieceRef.current = pieceRef.current.cloneNode(
-        true
-      ) as HTMLImageElement;
-      document.body.appendChild(clonedPieceRef.current);
-      console.log("clone", clonedPieceRef.current);
-      clonedPieceRef.current.width = pieceRef.current.offsetWidth;
-      clonedPieceRef.current.height = pieceRef.current.offsetHeight;
-      clonedPieceRef.current.style.position = "fixed";
-      clonedPieceRef.current.style.opacity = "1";
-      clonedPieceRef.current.style.pointerEvents = "none"; // so it doesn't interfere with other DOM elements
-
-      updatePiecePosition(e);
+      pieceRef.current.style.left =
+        e.clientX - pieceRef.current.offsetWidth / 2 + "px";
+      pieceRef.current.style.top =
+        e.clientY - pieceRef.current.offsetHeight / 2 + "px";
     }
     document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUpDocument);
+    document.addEventListener("mouseup", handleMouseUp);
   };
 
-  const handleMouseUpDocument = (e: MouseEvent) => {
-    console.log("Mouse up triggered");
+  const handleMouseUp = (e: MouseEvent) => {
     setIsDragging(false);
     if (pieceRef.current) {
-      pieceRef.current.style.opacity = "1";
+      pieceRef.current.style.position = "static"; // Reset position
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      onDrop(e, piecePosition, alt);
     }
-
-    // Remove the cloned image from the body
-    if (clonedPieceRef.current) {
-      document.body.removeChild(clonedPieceRef.current);
-      clonedPieceRef.current = null;
-    }
-
-    // IMPORTANT: Remove the listeners from the document when done dragging
-    document.removeEventListener("mousemove", handleMouseMove);
-    document.removeEventListener("mouseup", handleMouseUpDocument);
   };
 
   const handleMouseMove = (e: MouseEvent) => {
-    console.log("Mouse move triggered");
-    console.log(isDragging);
-    if (clonedPieceRef.current) {
-      updatePiecePosition(e);
-    }
-  };
-
-  const updatePiecePosition = (e: MouseEvent) => {
-    console.log("Updating position:", e.clientX, e.clientY);
-    if (clonedPieceRef.current) {
-      clonedPieceRef.current.style.left =
-        e.clientX - clonedPieceRef.current.offsetWidth / 2 + "px";
-      clonedPieceRef.current.style.top =
-        e.clientY - clonedPieceRef.current.offsetHeight / 2 + "px";
-    }
+    if (!pieceRef.current) return;
+    // Update the position of the piece
+    updatePiecePosition(e, pieceRef.current);
   };
 
   return (
     <Image
       src={src}
-      alt={alt}
+      alt={alt || "chess piece"}
       ref={pieceRef}
       onMouseDown={handleMouseDown}
       draggable={false}
-      className="cursor-pointer"
+      className={`cursor-pointer ${isDragging ? "dragging" : ""}`}
+      style={
+        isDragging && pieceRef.current
+          ? {
+              position: "fixed",
+              pointerEvents: "none",
+              zIndex: 1000,
+              opacity: 1,
+              width: pieceRef.current.offsetWidth,
+              height: pieceRef.current.offsetHeight,
+            }
+          : {}
+      }
     />
   );
 };

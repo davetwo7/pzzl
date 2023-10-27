@@ -1,27 +1,19 @@
-type Piece = 'r' | 'n' | 'b' | 'q' | 'k' | 'p' | 'R' | 'N' | 'B' | 'Q' | 'K' | 'P' | null;
+import { ChessPieceType, ChessState } from "../types/types";
 
-export interface ChessState {
-  board: Piece[][];
-  turn: string;
-  castling: string;
-  enPassant: string;
-  halfMoveClock: number;
-  firstMoveTimer: number;
-};
 
 const parseFEN = (fen: String): ChessState => {
   let parts = fen.split(" ");
   let ranks = parts[0].split("/");
 
-  const board: Piece[][] = ranks.map((rank) => {
-    const row: Piece[] = [];
+  const board: ChessPieceType[][] = ranks.map((rank) => {
+    const row: ChessPieceType[] = [];
     for (let i = 0; i < rank.length; i++) {
       const char = rank[i];
       if (isNaN(Number(char))) {
-        row.push(char as Piece)
+        row.push(char as ChessPieceType)
       } else {
         for (let j = 0; j < Number(char); j++) {
-          row.push(null);
+          row.push("");
         }
       }
     }
