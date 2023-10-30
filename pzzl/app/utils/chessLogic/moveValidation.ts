@@ -105,3 +105,44 @@ export const validateQueenMove = (start: PiecePosition, end: PiecePosition, boar
   return validateBishopMove(start, end, board, isWhite) || validateRookMove(start, end, board, isWhite)
 }
 
+export const validateKingMove = (start: PiecePosition, end: PiecePosition, board: ChessState, isWhite: boolean) => {
+  // Check basic move validity (one square in any direction)
+  let rowDiff = Math.abs(start.row - end.row);
+  let colDiff = Math.abs(start.col - end.col);
+  if (rowDiff > 1 || colDiff > 1) return false;
+
+  // Find opponent's king's position
+  let opponentKingPos: { row: number; col: number; } | undefined;
+  for (let row = 0; row < 8; row++) {
+    for (let col = 0; col < 8; col++) {
+      if (board.board[row][col] === (isWhite ? 'k' : 'K')) {
+        opponentKingPos = { row, col };
+        break;
+      }
+    }
+    if (opponentKingPos) break;
+  }
+
+  if (!opponentKingPos) {
+    // Handle the error or throw an exception
+    console.error("Opponent's king not found on the board!");
+    return false;
+  }
+
+  // Check if the end position is too close to the opponent's king
+  for (let i = -1; i <= 1; i++) {
+    for (let j = -1; j <= 1; j++) {
+      if (i === 0 && j === 0) continue; // Skip the square where the opponent's king is
+      let checkRow = opponentKingPos.row + i;
+      let checkCol = opponentKingPos.col + j;
+
+      // If this is our end position, the move is not valid
+      if (checkRow === end.row && checkCol === end.col) return false;
+    }
+  }
+
+  // Check if end square is empty or contains an opponent's piece
+  const endPiece = board.board[end.row][end.col];
+  const canCapture = endPiece && isPieceWhite(endPiece) !== isWhite;
+  return !endPiece || canCapture;
+};

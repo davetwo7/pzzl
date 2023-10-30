@@ -1,5 +1,5 @@
 import { ChessState, ChessPieceType, PiecePosition } from "@/app/types/types";
-import { validatePawnMove, validateBishopMove, validateKnightMove, validateRookMove, validateQueenMove } from "./moveValidation";
+import { validatePawnMove, validateBishopMove, validateKnightMove, validateRookMove, validateQueenMove, validateKingMove } from "./moveValidation";
 
 export const checkLegalMove = (piece: ChessPieceType, startPosition: PiecePosition, endPosition: PiecePosition, board: ChessState) => {
   if (piece === null) {
@@ -15,12 +15,13 @@ export const checkLegalMove = (piece: ChessPieceType, startPosition: PiecePositi
     'R': validateRookMove,
     'q': validateQueenMove,
     'Q': validateQueenMove,
-    // 'k': validateKingMove,
-    // 'K': validateKingMove,
+    'k': validateKingMove,
+    'K': validateKingMove,
     'n': validateKnightMove,
     'N': validateKnightMove,
     'b': validateBishopMove,
-    'B': validateBishopMove
+    'B': validateBishopMove,
+    '': () => false
   }
   console.log(board.board[endPosition.row][endPosition.col])
   return pieceMoves[piece](startPosition, endPosition, board, isPieceWhite(piece)) && (board.board[endPosition.row][endPosition.col] !== "k" && board.board[endPosition.row][endPosition.col] !== "K")
