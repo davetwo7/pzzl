@@ -66,12 +66,14 @@ const Board = ({ boardData }: BoardProps) => {
     const mouseYRelativeToBoard = e.clientY - rect.top;
 
     // Calculate row and column, convert to range 1-8 and adjust for zero-based index
-    let col = Math.ceil(mouseXRelativeToBoard / squareWidth);
-    let row = Math.ceil(mouseYRelativeToBoard / squareHeight);
+    let col = Math.ceil(mouseXRelativeToBoard / squareWidth) - 1;
+    let row = Math.ceil(mouseYRelativeToBoard / squareHeight) - 1;
 
     // Make sure the row and col are within the 1-8 range
-    row = Math.max(1, Math.min(8, row));
-    col = Math.max(1, Math.min(8, col));
+    row = Math.max(0, Math.min(8, row));
+    col = Math.max(0, Math.min(8, col));
+
+    console.log("This is the calculated row and col ", row, col);
     return { row, col };
   };
 
@@ -90,7 +92,7 @@ const Board = ({ boardData }: BoardProps) => {
       board
     );
     if (isLegal) {
-      capturePiece(startingPosition, newPosition, setBoard, board);
+      capturePiece(startingPosition, newPosition, setBoard);
     }
     // setDroppedPosition(newPosition);
     // Here, you can update the board state based on where the piece was dropped
@@ -106,6 +108,7 @@ const Board = ({ boardData }: BoardProps) => {
             const isBlack = (row + col) % 2 !== 0;
             let currentPiece = board.board[row][col];
             let currentPieceSrc = currentPiece && PIECES_MAP[currentPiece];
+            // console.log("New Board Created ", currentPieceSrc);
             return (
               <div
                 key={index}
@@ -119,7 +122,7 @@ const Board = ({ boardData }: BoardProps) => {
                     alt={currentPiece || "Chess piece"}
                     onDrop={onPieceDrop}
                     updatePiecePosition={updatePiecePosition}
-                    piecePosition={{ row: row + 1, col: col + 1 }} // Add piece's current position
+                    piecePosition={{ row: row, col: col }} // Add piece's current position
                   />
                 ) : null}
               </div>
