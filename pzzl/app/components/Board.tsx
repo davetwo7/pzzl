@@ -1,11 +1,8 @@
 "use client";
-import React from "react";
-import { useState, useRef } from "react";
-import { BoardProps, PiecePosition, ChessPieceType } from "../types/types";
-import {
-  capturePiece,
-  checkLegalMove,
-} from "../utils/chessLogic/checkLegalMove";
+import React, { useEffect } from "react";
+import { useState, useRef, useContext } from "react";
+import { BoardProps } from "../types/types";
+import { updatePiecePosition } from "../utils/boardUtils";
 import bPawn from "../../public/chessPieceSVG/pb.svg";
 import bBishop from "../../public/chessPieceSVG/bb.svg";
 import bRook from "../../public/chessPieceSVG/rb.svg";
@@ -19,15 +16,22 @@ import wQueen from "../../public/chessPieceSVG/qw.svg";
 import wKnight from "../../public/chessPieceSVG/nw.svg";
 import wKing from "../../public/chessPieceSVG/kw.svg";
 import ClientChessPiece from "./ClientChessPiece";
+import PromotionModal from "@/app/components/PromotionModal";
+import { ModalContext } from "./ModalProvider";
+import { useMovePiece } from "../utils/chessLogic/checkLegalMove";
+import { ChessPieceType, ChessState, PiecePosition } from "../types/types";
+import { calculateNewPosition } from "../utils/boardUtils";
+import { checkLegalMove } from "../utils/chessLogic/checkLegalMove";
 
 const Board = ({ boardData }: BoardProps) => {
   const boardRef = useRef<HTMLDivElement>(null);
+  const { modalVisible } = useContext(ModalContext);
+  const movePiece = useMovePiece();
 
   let cols: number = 8;
   let rows: number = 8;
 
   const [board, setBoard] = useState(boardData);
-  const [droppedPosition, setDroppedPosition] = useState(null);
 
   const PIECES_MAP = {
     b: bBishop,
@@ -44,62 +48,33 @@ const Board = ({ boardData }: BoardProps) => {
     P: wPawn,
   };
 
-  const updatePiecePosition = (
-    e: MouseEvent,
-    currentPiece: HTMLImageElement
-  ) => {
-    currentPiece.style.left = e.clientX - currentPiece.offsetWidth / 2 + "px";
-    currentPiece.style.top = e.clientY - currentPiece.offsetHeight / 2 + "px";
-  };
-
-  const calculateNewPosition = (e: MouseEvent): PiecePosition => {
-    if (!boardRef.current) {
-      return { row: 0, col: 0 };
-    }
-
-    const rect = boardRef.current.getBoundingClientRect();
-    const squareWidth = rect.width / 8;
-    const squareHeight = rect.height / 8;
-
-    // Calculate the mouse position relative to the board
-    const mouseXRelativeToBoard = e.clientX - rect.left;
-    const mouseYRelativeToBoard = e.clientY - rect.top;
-
-    // Calculate row and column, convert to range 1-8 and adjust for zero-based index
-    let col = Math.ceil(mouseXRelativeToBoard / squareWidth) - 1;
-    let row = Math.ceil(mouseYRelativeToBoard / squareHeight) - 1;
-
-    // Make sure the row and col are within the 1-8 range
-    row = Math.max(0, Math.min(8, row));
-    col = Math.max(0, Math.min(8, col));
-
-    console.log("This is the calculated row and col ", row, col);
-    return { row, col };
-  };
-
   const onPieceDrop = async (
     e: MouseEvent,
     startingPosition: PiecePosition,
-    piece: ChessPieceType
+    piece: ChessPieceType,
+    board: ChessState,
+    boardRef: React.RefObject<HTMLDivElement>,
+    setBoard: React.Dispatch<React.SetStateAction<ChessState>>
   ) => {
-    let newPosition = calculateNewPosition(e);
+    let newPosition = calculateNewPosition(e, boardRef);
     console.log(startingPosition);
     console.log("Piece dropped at: ", newPosition);
+
     const isLegal: boolean = checkLegalMove(
       piece,
       startingPosition,
       newPosition,
       board
     );
+
     if (isLegal) {
-      capturePiece(startingPosition, newPosition, setBoard);
+      movePiece(startingPosition, newPosition, setBoard);
     }
-    // setDroppedPosition(newPosition);
-    // Here, you can update the board state based on where the piece was dropped
   };
 
   return (
     <div className="board" ref={boardRef}>
+      {modalVisible ? <PromotionModal /> : null}
       <div className="relative container mx-auto p-4 w-[40vw] max-w-[750px] pt-[40vw] max-pt-[750px]">
         <div className="absolute top-0 left-0 right-0 bottom-0 grid grid-cols-8 bg-white text-black gap-0 w-full h-full">
           {Array.from({ length: cols * rows }, (_, index) => {
@@ -108,7 +83,6 @@ const Board = ({ boardData }: BoardProps) => {
             const isBlack = (row + col) % 2 !== 0;
             let currentPiece = board.board[row][col];
             let currentPieceSrc = currentPiece && PIECES_MAP[currentPiece];
-            // console.log("New Board Created ", currentPieceSrc);
             return (
               <div
                 key={index}
@@ -122,7 +96,10 @@ const Board = ({ boardData }: BoardProps) => {
                     alt={currentPiece || "Chess piece"}
                     onDrop={onPieceDrop}
                     updatePiecePosition={updatePiecePosition}
-                    piecePosition={{ row: row, col: col }} // Add piece's current position
+                    piecePosition={{ row: row, col: col }}
+                    board={board}
+                    boardRef={boardRef}
+                    setBoard={setBoard}
                   />
                 ) : null}
               </div>

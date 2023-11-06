@@ -28,21 +28,17 @@ export const validateBishopMove = (start: PiecePosition, end: PiecePosition, boa
   let rowDifference = Math.abs(start.row - end.row);
   let colDifference = Math.abs(start.col - end.col);
 
-  // Check if the bishop is moving diagonally (equal absolute row and column difference)
   if (rowDifference === colDifference) {
-    // Check if the path is clear (no pieces blocking the diagonal path)
     let rowIncrement = (end.row - start.row) / rowDifference;
     let colIncrement = (end.col - start.col) / colDifference;
 
     for (let i = 1; i < rowDifference; i++) {
-      // console.log(board.board[start.row + i * rowIncrement][start.col + i * colIncrement])
+
       if (board.board[start.row + i * rowIncrement][start.col + i * colIncrement]) {
-        // Found a piece in the way
         return false;
       }
     }
 
-    // Final position should either be empty or contain an opponent's piece
     let endPiece = board.board[end.row][end.col];
     return !endPiece || isPieceWhite(endPiece) !== isWhite;
   } else {
@@ -71,31 +67,26 @@ export const validateRookMove = (start: PiecePosition, end: PiecePosition, board
   let movedVertically = colDifference === 0 && rowDifference > 0;
 
   if (!movedHorizontally && !movedVertically) {
-    return false; // Rook must move either horizontally or vertically
+    return false;
   }
 
-  // Determine step direction for iteration
   let rowStep = start.row < end.row ? 1 : -1;
   let colStep = start.col < end.col ? 1 : -1;
 
-  // Use a for loop to iterate through each square between start and end
   let currentRow = start.row;
   let currentCol = start.col;
 
   while ((movedVertically && currentRow !== end.row) || (movedHorizontally && currentCol !== end.col)) {
-    // Move to the next square
     if (movedVertically) currentRow += rowStep;
     if (movedHorizontally) currentCol += colStep;
 
-    // Check if there is a piece in the current square
-    if ((movedVertically && currentRow !== end.row) || (movedHorizontally && currentCol !== end.col)) { // Exclude end square
+    if ((movedVertically && currentRow !== end.row) || (movedHorizontally && currentCol !== end.col)) {
       if (board.board[currentRow][currentCol]) {
-        return false; // Path blocked by another piece
+        return false;
       }
     }
   }
 
-  // Check if end square is empty or contains an opponent's piece
   const endPiece = board.board[end.row][end.col];
   const canCapture = endPiece && isPieceWhite(endPiece) !== isWhite;
   return !endPiece || canCapture;
@@ -106,7 +97,6 @@ export const validateQueenMove = (start: PiecePosition, end: PiecePosition, boar
 }
 
 export const validateKingMove = (start: PiecePosition, end: PiecePosition, board: ChessState, isWhite: boolean) => {
-  // Check basic move validity (one square in any direction)
   let rowDiff = Math.abs(start.row - end.row);
   let colDiff = Math.abs(start.col - end.col);
   if (rowDiff > 1 || colDiff > 1) return false;

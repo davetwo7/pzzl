@@ -1,4 +1,6 @@
+"use client";
 import Board from "./components/Board";
+import { ModalProvider } from "./components/ModalProvider";
 import parseFEN from "./utils/parseFEN";
 
 let test = parseFEN(
@@ -7,9 +9,11 @@ let test = parseFEN(
 
 export default function Home() {
   return (
-    <main className="flex items-center flex-col">
-      <h1 className="p-8 text-2xl font-ranade-medium">pzzl.</h1>
-      <Board boardData={test} />
-    </main>
+    <ModalProvider>
+      <main className="flex items-center flex-col">
+        <h1 className="p-8 text-2xl font-ranade-medium">pzzl.</h1>
+        <Board boardData={test} />
+      </main>
+    </ModalProvider>
   );
 }

@@ -1,16 +1,15 @@
 import { ChessState, ChessPieceType, PiecePosition } from "@/app/types/types";
 import { validatePawnMove, validateBishopMove, validateKnightMove, validateRookMove, validateQueenMove, validateKingMove } from "./moveValidation";
+import { ModalContext } from "@/app/components/ModalProvider";
+import { useContext, useEffect, useState } from "react";
 
 export const checkLegalMove = (piece: ChessPieceType, startPosition: PiecePosition, endPosition: PiecePosition, board: ChessState) => {
   if (piece === null) {
     return false;
   }
-  // Determine color and piece type from pieceType
-  // Call the respective function based on the piece type
-  // e.g., if (pieceType.toLowerCase() === 'p') { return validatePawnMove(startPosition, endPosition, board); }
   const pieceMoves: { [key in ChessPieceType]: Function } = {
     'p': validatePawnMove,
-    'P': validatePawnMove, // Assuming same logic for black and white pawns
+    'P': validatePawnMove,
     'r': validateRookMove,
     'R': validateRookMove,
     'q': validateQueenMove,
@@ -23,36 +22,62 @@ export const checkLegalMove = (piece: ChessPieceType, startPosition: PiecePositi
     'B': validateBishopMove,
     '': () => false
   }
-  console.log(board.board[endPosition.row][endPosition.col])
   return pieceMoves[piece](startPosition, endPosition, board, isPieceWhite(piece)) && (board.board[endPosition.row][endPosition.col] !== "k" && board.board[endPosition.row][endPosition.col] !== "K")
-  // Include additional rules like check/checkmate considerations
-
 };
 
 export const isPieceWhite = (chessPiece: ChessPieceType): boolean => {
-  // your logic here
   return chessPiece === chessPiece?.toUpperCase();
 }
 
-export const capturePiece = (
-  startPosition: PiecePosition,
-  endPosition: PiecePosition,
-  setBoard: React.Dispatch<React.SetStateAction<ChessState>>
-) => {
-  console.log("Piece captured");
-
-  setBoard(prevBoard => {
-    // First, create a deep copy of the board
-    const newBoard = prevBoard.board.map(row => [...row]);
-
-    // Move the piece from the startPosition to the endPosition
-    newBoard[endPosition.row][endPosition.col] = newBoard[startPosition.row][startPosition.col];
-    newBoard[startPosition.row][startPosition.col] = ""; // Assuming an empty square is represented by an empty string
-
-    // Now return the new state with the updated board
-    return {
-      ...prevBoard,
-      board: newBoard
-    };
-  });
+interface PromotionState {
+  shouldPromote: boolean;
+  color: string | null;
 }
+
+export const useMovePiece = () => {
+  const { setModalVisible } = useContext(ModalContext);
+
+  const [promotion, setPromotion] = useState<PromotionState>({ shouldPromote: false, color: null });;
+
+  useEffect(() => {
+    // Only show the modal if a promotion should occur
+    if (promotion.shouldPromote) {
+      setModalVisible(true);
+      // Handle the promotion here or reset the promotion state
+      // ...
+    }
+    console.log(promotion)
+  }, [promotion, setModalVisible]);
+
+  const movePiece = (
+    startPosition: PiecePosition,
+    endPosition: PiecePosition,
+    setBoard: React.Dispatch<React.SetStateAction<ChessState>>
+  ) => {
+
+    let promotion = false;
+
+    setBoard(prevBoard => {
+      const newBoard = prevBoard.board.map(row => [...row]);
+
+      newBoard[endPosition.row][endPosition.col] = newBoard[startPosition.row][startPosition.col];
+      newBoard[startPosition.row][startPosition.col] = "";
+
+      const newPosition = newBoard[endPosition.row][endPosition.col];
+      if (endPosition.row === 0 && newPosition === "P") {
+        console.log("White Piece Promotion");
+        setPromotion({ shouldPromote: true, color: 'white' });
+      } else if (endPosition.row === 7 && newPosition === "p") {
+        console.log("Black Piece Promotion");
+        setPromotion({ shouldPromote: true, color: 'black' });
+      }
+
+      return {
+        ...prevBoard,
+        board: newBoard
+      };
+    });
+  }
+
+  return movePiece;
+};

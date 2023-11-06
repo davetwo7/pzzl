@@ -38,10 +38,16 @@ export interface BoardProps {
 export interface ClientChessPieceProps {
   src: string;
   alt: ChessPieceType;
+  board: ChessState;
+  boardRef: React.RefObject<HTMLDivElement>;
+  setBoard: React.Dispatch<React.SetStateAction<ChessState>>;
   onDrop: (
     e: MouseEvent,
     startingPosition: PiecePosition,
-    alt: ChessPieceType
+    alt: ChessPieceType,
+    board: ChessState,
+    boardRef: React.RefObject<HTMLDivElement>,
+    setBoard: React.Dispatch<React.SetStateAction<ChessState>>,
   ) => void;
   piecePosition: PiecePosition;
   updatePiecePosition: (e: MouseEvent, currentPiece: HTMLImageElement) => void;

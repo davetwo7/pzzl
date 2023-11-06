@@ -9,6 +9,9 @@ const ClientChessPiece = ({
   onDrop,
   piecePosition,
   updatePiecePosition,
+  board,
+  boardRef,
+  setBoard,
 }: ClientChessPieceProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const pieceRef = useRef<HTMLImageElement>(null);
@@ -34,7 +37,7 @@ const ClientChessPiece = ({
       pieceRef.current.style.position = "static"; // Reset position
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
-      onDrop(e, piecePosition, alt);
+      onDrop(e, piecePosition, alt, board, boardRef, setBoard);
     }
   };
 
