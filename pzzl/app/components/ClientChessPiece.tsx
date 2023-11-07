@@ -19,7 +19,7 @@ const ClientChessPiece = ({
   const handleMouseDown = (
     e: React.MouseEvent<HTMLImageElement, MouseEvent>
   ) => {
-    e.preventDefault(); // Prevent default to handle drag properly
+    e.preventDefault();
     setIsDragging(true);
     if (pieceRef.current) {
       pieceRef.current.style.left =
@@ -34,7 +34,7 @@ const ClientChessPiece = ({
   const handleMouseUp = (e: MouseEvent) => {
     setIsDragging(false);
     if (pieceRef.current) {
-      pieceRef.current.style.position = "static"; // Reset position
+      pieceRef.current.style.position = "static";
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
       onDrop(e, piecePosition, alt, board, boardRef, setBoard);
@@ -43,7 +43,6 @@ const ClientChessPiece = ({
 
   const handleMouseMove = (e: MouseEvent) => {
     if (!pieceRef.current) return;
-    // Update the position of the piece
     updatePiecePosition(e, pieceRef.current);
   };
 
@@ -60,7 +59,7 @@ const ClientChessPiece = ({
           ? {
               position: "fixed",
               pointerEvents: "none",
-              zIndex: 1000,
+              zIndex: 25,
               opacity: 1,
               width: pieceRef.current.offsetWidth,
               height: pieceRef.current.offsetHeight,

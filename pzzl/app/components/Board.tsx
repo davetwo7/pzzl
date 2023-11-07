@@ -25,7 +25,8 @@ import { checkLegalMove } from "../utils/chessLogic/checkLegalMove";
 
 const Board = ({ boardData }: BoardProps) => {
   const boardRef = useRef<HTMLDivElement>(null);
-  const { modalVisible } = useContext(ModalContext);
+  const { modalVisible, promotionColor, promotionPosition } =
+    useContext(ModalContext);
   const movePiece = useMovePiece();
 
   let cols: number = 8;
@@ -73,9 +74,15 @@ const Board = ({ boardData }: BoardProps) => {
   };
 
   return (
-    <div className="board" ref={boardRef}>
-      {modalVisible ? <PromotionModal /> : null}
-      <div className="relative container mx-auto p-4 w-[40vw] max-w-[750px] pt-[40vw] max-pt-[750px]">
+    <div className="board relative" ref={boardRef}>
+      {modalVisible ? (
+        <PromotionModal
+          color={promotionColor}
+          position={promotionPosition}
+          setBoard={setBoard}
+        />
+      ) : null}
+      <div className="relative container mx-auto p-4 w-[40vw] max-w-[750px] pt-[40vw] pt-full">
         <div className="absolute top-0 left-0 right-0 bottom-0 grid grid-cols-8 bg-white text-black gap-0 w-full h-full">
           {Array.from({ length: cols * rows }, (_, index) => {
             const row = Math.floor(index / cols);

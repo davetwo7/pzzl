@@ -32,30 +32,33 @@ export const isPieceWhite = (chessPiece: ChessPieceType): boolean => {
 interface PromotionState {
   shouldPromote: boolean;
   color: string | null;
+  newPosition: {
+    row: number;
+    col: number;
+  } | null
 }
 
 export const useMovePiece = () => {
-  const { setModalVisible } = useContext(ModalContext);
+  const { setModalVisible, setPromotionColor, setPromotionPosition } = useContext(ModalContext);
 
-  const [promotion, setPromotion] = useState<PromotionState>({ shouldPromote: false, color: null });;
+  const [promotion, setPromotion] = useState<PromotionState>({ shouldPromote: false, color: null, newPosition: null });
 
   useEffect(() => {
-    // Only show the modal if a promotion should occur
-    if (promotion.shouldPromote) {
+    if (promotion.shouldPromote && promotion.color && promotion.newPosition) {
+      setPromotionColor(promotion.color)
+      setPromotionPosition(promotion.newPosition)
       setModalVisible(true);
       // Handle the promotion here or reset the promotion state
       // ...
     }
     console.log(promotion)
-  }, [promotion, setModalVisible]);
+  }, [promotion, setModalVisible, setPromotionColor, setPromotionPosition]);
 
   const movePiece = (
     startPosition: PiecePosition,
     endPosition: PiecePosition,
     setBoard: React.Dispatch<React.SetStateAction<ChessState>>
   ) => {
-
-    let promotion = false;
 
     setBoard(prevBoard => {
       const newBoard = prevBoard.board.map(row => [...row]);
@@ -66,10 +69,10 @@ export const useMovePiece = () => {
       const newPosition = newBoard[endPosition.row][endPosition.col];
       if (endPosition.row === 0 && newPosition === "P") {
         console.log("White Piece Promotion");
-        setPromotion({ shouldPromote: true, color: 'white' });
+        setPromotion({ shouldPromote: true, color: 'white', newPosition: endPosition });
       } else if (endPosition.row === 7 && newPosition === "p") {
         console.log("Black Piece Promotion");
-        setPromotion({ shouldPromote: true, color: 'black' });
+        setPromotion({ shouldPromote: true, color: 'black', newPosition: endPosition });
       }
 
       return {
