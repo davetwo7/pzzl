@@ -3,7 +3,8 @@ import { isPieceWhite } from "./checkLegalMove";
 
 export const validatePawnMove = (start: PiecePosition, end: PiecePosition, board: ChessState, isWhite: boolean) => {
   // Simplified example: doesn't handle en passant or initial two-square move
-  const direction = isWhite ? -1 : 1; // White pawns move up (decreasing row), black move down
+  const direction = (board.turn === "w") === isWhite ? -1 : 1; // White pawns move up (decreasing row), black move down
+
   const rowDiff = end.row - start.row;
   const colDiff = end.col - start.col;
 

@@ -2,6 +2,7 @@
 import React, { useRef, useState } from "react";
 import Image from "next/image";
 import { ClientChessPieceProps } from "../types/types";
+import { isPieceWhite } from "../utils/chessLogic/checkLegalMove";
 
 const ClientChessPiece = ({
   src,
@@ -20,6 +21,15 @@ const ClientChessPiece = ({
     e: React.MouseEvent<HTMLImageElement, MouseEvent>
   ) => {
     e.preventDefault();
+    let playerColor = "";
+    if (isPieceWhite(alt)) {
+      playerColor = "w";
+    } else {
+      playerColor = "b";
+    }
+    if (board.turn != playerColor) {
+      return;
+    }
     setIsDragging(true);
     if (pieceRef.current) {
       pieceRef.current.style.left =
@@ -42,6 +52,8 @@ const ClientChessPiece = ({
   };
 
   const handleMouseMove = (e: MouseEvent) => {
+    console.log("moving");
+    console.log("piece: ", alt);
     if (!pieceRef.current) return;
     updatePiecePosition(e, pieceRef.current);
   };
