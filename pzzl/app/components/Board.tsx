@@ -25,6 +25,7 @@ import { checkLegalMove } from "../utils/chessLogic/checkLegalMove";
 
 const Board = ({ boardData }: BoardProps) => {
   const boardRef = useRef<HTMLDivElement>(null);
+  const [boardSize, setBoardSize] = useState({ width: 0, height: 0 });
   const { modalVisible, promotionColor, promotionPosition } =
     useContext(ModalContext);
   const movePiece = useMovePiece();
@@ -73,6 +74,24 @@ const Board = ({ boardData }: BoardProps) => {
     }
   };
 
+  useEffect(() => {
+    const updateBoardSize = () => {
+      if (boardRef.current) {
+        const width = boardRef.current.offsetWidth;
+        const height = boardRef.current.offsetHeight;
+        console.log({ width, height });
+        setBoardSize({ width, height });
+      }
+    };
+
+    window.addEventListener("resize", updateBoardSize);
+    updateBoardSize();
+
+    return () => {
+      window.removeEventListener("resize", updateBoardSize);
+    };
+  }, []);
+
   return (
     <div className="board relative" ref={boardRef}>
       {modalVisible ? (
@@ -82,8 +101,8 @@ const Board = ({ boardData }: BoardProps) => {
           setBoard={setBoard}
         />
       ) : null}
-      <div className="relative container mx-auto p-4 w-[40vw] max-w-[750px] pt-[40vw] pt-full">
-        <div className="absolute top-0 left-0 right-0 bottom-0 grid grid-cols-8 bg-white text-black gap-0 w-full h-full">
+      <div className="relative container mx-auto p-4 w-[40vw] pt-[40vw] pt-full">
+        <div className="absolute top-0 left-0 right-0 bottom-0 grid grid-cols-8 bg-white text-black gap-0 w-100%">
           {Array.from({ length: cols * rows }, (_, index) => {
             const row = Math.floor(index / cols);
             const col = index % cols;
@@ -93,9 +112,13 @@ const Board = ({ boardData }: BoardProps) => {
             return (
               <div
                 key={index}
+                style={{
+                  width: boardSize.width / 8,
+                  height: boardSize.height / 8,
+                }}
                 className={`${
                   isBlack ? "bg-dark-blue" : "bg-light-blue"
-                } relative`}
+                } relative overflow-hidden `}
               >
                 {currentPiece ? (
                   <ClientChessPiece
