@@ -16,7 +16,7 @@ export const validatePawnMove = (start: PiecePosition, end: PiecePosition, board
 
   // Capture move
   if (Math.abs(colDiff) === 1 && rowDiff === direction) {
-    return board.board[end.row][end.col] && (isWhite !== isPieceWhite(board.board[end.row][end.col])); // Must capture opposite color
+    return board.board[end.row][end.col] && (isWhite !== isPieceWhite(board.board[end.row][end.col])); // Must capture opposite col or
   }
 
   return false;
