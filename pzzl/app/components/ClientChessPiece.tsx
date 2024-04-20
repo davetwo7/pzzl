@@ -52,8 +52,6 @@ const ClientChessPiece = ({
   };
 
   const handleMouseMove = (e: MouseEvent) => {
-    console.log("moving");
-    console.log("piece: ", alt);
     if (!pieceRef.current) return;
     updatePiecePosition(e, pieceRef.current);
   };

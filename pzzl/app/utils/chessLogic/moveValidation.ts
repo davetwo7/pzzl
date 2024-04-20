@@ -83,12 +83,14 @@ export const validateRookMove = (start: PiecePosition, end: PiecePosition, board
 
     if ((movedVertically && currentRow !== end.row) || (movedHorizontally && currentCol !== end.col)) {
       if (board.board[currentRow][currentCol]) {
+        console.log("Invalid Move")
         return false;
       }
     }
   }
 
   const endPiece = board.board[end.row][end.col];
+  console.log("end piece: ", { row: end.row, col: end.col })
   const canCapture = endPiece && isPieceWhite(endPiece) !== isWhite;
   return !endPiece || canCapture;
 };

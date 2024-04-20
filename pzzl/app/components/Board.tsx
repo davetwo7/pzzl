@@ -22,6 +22,7 @@ import { useMovePiece } from "../utils/chessLogic/checkLegalMove";
 import { ChessPieceType, ChessState, PiecePosition } from "../types/types";
 import { calculateNewPosition } from "../utils/boardUtils";
 import { checkLegalMove } from "../utils/chessLogic/checkLegalMove";
+import { inCheck } from "../utils/chessLogic/inCheck";
 
 const Board = ({ boardData }: BoardProps) => {
   const boardRef = useRef<HTMLDivElement>(null);
@@ -70,7 +71,8 @@ const Board = ({ boardData }: BoardProps) => {
     );
 
     if (isLegal) {
-      movePiece(startingPosition, newPosition, setBoard);
+      await movePiece(startingPosition, newPosition, setBoard);
+      inCheck(board, newPosition);
     }
   };
 
